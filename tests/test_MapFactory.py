@@ -8,6 +8,7 @@ from tests.TestCase import TestCase
 
 class MapFactoryTest(TestCase):
     def setUp(self):
+        # todo test
         self._config = ConfigParserFacade('../conf.ini', 'test')
 
     def test_save(self):
