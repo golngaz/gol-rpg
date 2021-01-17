@@ -1,4 +1,4 @@
-from pygame import Surface, Rect
+from pygame import Surface
 from src.Game.Charset import Charset
 
 
@@ -36,7 +36,7 @@ class Character:
     def draw(self, surface: Surface):
         # todo à faire hériter d'une classe abstraite pour afficher un Objet dans le jeu
 
-        surface.blit(self._charset.image(), (self._x, self._y), self._charset.rect())
+        self._charset.sprite().draw(surface, (self._x, self._y))
 
     def move_down(self):
         self._move_down = True
@@ -62,12 +62,13 @@ class Character:
     def move_right_stop(self):
         self._move_right = False
 
-    def tick(self, tick: float):
+    def tick(self, tick: float, limit: Surface):
         # todo avoir un speed max
 
         self._compute_speeds(tick)
         self._compute_position()
         self._compute_movement(tick)
+        self._compute_screen_collision(limit)
 
         self._x += self._dx
         self._y += self._dy
@@ -142,6 +143,11 @@ class Character:
         return attribute
 
     def _compute_position(self):
+        """
+        calcule l'affichage de la position du charset
+        en fonction de la vitesse actuelle du personnage
+        """
+
         if self._dx == 0 and self._dy == 0:
             return
 
@@ -166,6 +172,23 @@ class Character:
         if self._ticks_before_switch_movements >= self._movements_all_x_seconds:
             self._charset.next_movement()
             self._ticks_before_switch_movements = 0
+
+    def _compute_screen_collision(self, limit: Surface):
+        self._x += self._dx
+        self._y += self._dy
+
+        offset_x = limit.get_offset()[0]
+        offset_y = limit.get_offset()[1]
+
+        if self._x + self._charset.width > limit.get_width() + offset_x:
+            self._x = offset_x + limit.get_width() - self._charset.width
+        elif self._x < offset_x:
+            self._x = offset_x
+
+        if self._y + self._charset.height > limit.get_height() + offset_y:
+            self._y = offset_y + limit.get_height() - self._charset.height
+        elif self._y < offset_y:
+            self._y = offset_y
 
     def __str__(self):
         return 'x: {}, y: {}, dx: {}, dy: {}'.format(

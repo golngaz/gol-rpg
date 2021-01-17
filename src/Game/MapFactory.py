@@ -14,7 +14,7 @@ class MapFactory:
 
     def save(self, map: Map):
         print(os.path.realpath(self._config.get('maps.path', '')))
-        file_name = self._config.get('maps.path', '') + map.name() + '.bin'
+        file_name = self._config.get('maps.path', '') + os.path.sep + map.name() + '.bin'
         file = None
 
         try:
@@ -26,7 +26,7 @@ class MapFactory:
             if file:
                 file.close()
 
-    def map(self, map_name) -> Map:
+    def map(self, map_name: str) -> Map:
         if map_name not in self._maps:
             return self._load(map_name)
 
@@ -34,12 +34,13 @@ class MapFactory:
 
     def _load(self, map_name: str, replace: bool = False) -> Map:
         file = None
+        file_path = self._config.get('maps.path', '') + os.path.sep + map_name + '.bin'
         try:
-            file = open(self._config.get('maps.path', '') + map_name + '.bin', 'rb')
+            file = open(file_path, 'rb')
         except IOError:
             if file:
                 file.close()
-            raise Exception('Map not found')
+            raise Exception('Map {} not found'.format(file_path))
 
         try:
             map = pickle.load(file)

@@ -3,14 +3,14 @@ from pygame.locals import *
 from src.Config.ConfigInterface import ConfigInterface
 from src.Game.Character import Character
 from src.Game.Charset import Charset
+from src.Game.MapFactory import MapFactory
 
 
 class Engine:
     def __init__(self, config: ConfigInterface):
         self._config = config
         self._running = True
-        from src.Game.MapFactory import MapFactory
-        self._map_factory = MapFactory(self._config, 'start-map')
+        self._map_factory = MapFactory(self._config)
         successes, failures = pygame.init()
         print("Initializing pygame: {0} successes and {1} failures.".format(successes, failures))
 
@@ -21,13 +21,19 @@ class Engine:
     def run(self) -> None:
         self._running = True
 
-        player = Character(Charset('asset/charset/armored-npcs.png', 48, 72, 8, 3, 4, 5))
+        map = self._map_factory.map('start-map')
+        map.load()
+        map.draw(self._screen)
+
+        player = Character(Charset('asset/charset/armored-npcs.png', 48, 72, 8, 3, 4, 4))
         player.load()
         player.draw(self._screen)
         pygame.display.flip()
 
         while self._running:
             tick = self._clock.tick(self._fps) / 1000
+            self._screen.fill((100, 150, 100))
+
             for event in pygame.event.get():
                 if event.type == QUIT:
                     self._running = False
@@ -53,8 +59,8 @@ class Engine:
                         player.move_right_stop()
 
             # print(player)
-            self._screen.fill((100, 150, 100))
-            player.tick(tick)
+            player.tick(tick, self._screen)
+            map.draw(self._screen)
             player.draw(self._screen)
             pygame.display.flip()
 

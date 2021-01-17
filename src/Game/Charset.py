@@ -3,13 +3,15 @@ from ctypes import Union
 import pygame
 from pygame.surface import Surface
 
+from src.Game.Sprite import Sprite
+
 
 class Charset:
     def __init__(
             self,
             file: str,
-            width: float,
-            height: float,
+            width: int,
+            height: int,
             skins: int = 1,
             movements: int = 3,
             positions: int = 4,
@@ -24,8 +26,8 @@ class Charset:
 
         self._image = None
         self._file = file
-        self._width = width
-        self._height = height
+        self.width = width
+        self.height = height
 
         if skins == 0 or movements == 0 or positions == 0:
             raise Exception('Error arguments')
@@ -85,12 +87,12 @@ class Charset:
     def rect(self):
         # 4 is modulo of nb skin before go back to another line
         return pygame.Rect(
-            self._movement * self._width +
-            (self._skin % 4) * self._width * self._movements,
-            self._position * self._height +
-            int((self._skin - (self._skin % 4)) / 4) * self._height * self._positions,
-            self._width,
-            self._height
+            self._movement * self.width +
+            (self._skin % 4) * self.width * self._movements,
+            self._position * self.height +
+            int((self._skin - (self._skin % 4)) / 4) * self.height * self._positions,
+            self.width,
+            self.height
         )
 
     def next_movement(self):
@@ -105,3 +107,6 @@ class Charset:
     def set_default_movement(self):
         self._movement = 1
         self._movement_way = 1
+
+    def sprite(self):
+        return Sprite(self.image(), self.rect())
