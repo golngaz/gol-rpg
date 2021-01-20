@@ -1,5 +1,6 @@
 from pygame import Surface
 from src.Game.Charset import Charset
+from src.Geometry.Vector2D import Vector2D
 
 
 class Character:
@@ -23,8 +24,7 @@ class Character:
 
         # speeds
         self._max_speed = 3
-        self._dx = 0.0
-        self._dy = 0.0
+        self._speed = Vector2D()
 
         # 10 acceleration at 10 px by tick
         self._acceleration = 10.0
@@ -63,84 +63,84 @@ class Character:
         self._move_right = False
 
     def tick(self, tick: float, limit: Surface):
-        # todo avoir un speed max
-
         self._compute_speeds(tick)
         self._compute_position()
         self._compute_movement(tick)
-        self._compute_screen_collision(limit)
 
-        self._x += self._dx
-        self._y += self._dy
+        self._apply_position()
+
+        self._compute_screen_collision(limit)
 
     def _compute_speeds(self, tick: float):
         if self._move_up:
-            self._dy = self._accelerate(tick, self._dy, -self._acceleration)
+            self._accelerate(tick, 'y', self._acceleration)
 
         if self._move_left:
-            self._dx = self._accelerate(tick, self._dx, -self._acceleration)
+            self._accelerate(tick, 'x', -self._acceleration)
 
         if self._move_right:
-            self._dx = self._accelerate(tick, self._dx, self._acceleration)
+            self._accelerate(tick, 'x', self._acceleration)
 
         if self._move_down:
-            self._dy = self._accelerate(tick, self._dy, self._acceleration)
+            self._accelerate(tick, 'y', -self._acceleration)
 
         if not self._move_up and not self._move_down:
-            self._dy = self._decelerate(tick, self._dy, self._deceleration)
+            self._decelerate(tick, 'y', self._deceleration)
 
         if not self._move_left and not self._move_right:
-            self._dx = self._decelerate(tick, self._dx, self._deceleration)
+            self._decelerate(tick, 'x', self._deceleration)
 
-    def _accelerate(self, tick: float, attribute: float, acceleration: float) -> float:
+        self._limit_speed()
+
+    def _accelerate(self, tick: float, attribute: str, acceleration: float):
         """
         :param acceleration: can be negative
-        :return:
+        :param attribute: x or y
         """
 
-        # si l'acceleration est opposé à la vitesse, on freine d'abord
-        if acceleration < 0 < attribute or acceleration > 0 > attribute:
-            return self._decelerate(tick, attribute, self._deceleration)
+        if attribute == 'x':
+            self._speed.set_x(tick * acceleration + self._speed.x())
 
-        if attribute >= self._max_speed:
-            return self._max_speed
+        elif attribute == 'y':
+            self._speed.set_y(tick * acceleration + self._speed.y())
 
-        if attribute <= -self._max_speed:
-            return -self._max_speed
+    def _limit_speed(self):
+        if self._speed.norm() > self._max_speed:
+            self._speed.set_norm(self._max_speed)
 
-        computed = tick * acceleration + attribute
-        if computed > self._max_speed:
-            return self._max_speed
-
-        if computed < -self._max_speed:
-            return -self._max_speed
-
-        return computed
-
-    def _decelerate(self, tick: float, attribute: float, deceleration: float) -> float:
+    def _decelerate(self, tick: float, attribute: str, deceleration: float):
         """
         :param deceleration: absolute value, will bring near 0
         """
+
+        if attribute == 'x':
+            value = self._speed.x()
+        else:
+            value = self._speed.y()
+
         if deceleration < 0:
             raise Exception('Deceleration value can be lesser than 0')
 
-        if attribute == 0:
-            return 0
+        if value == 0:
+            return
 
         negative = False
-        if attribute < 0:
+        if value < 0:
             negative = True
-            attribute = -attribute
+            value = -value
 
-        if attribute - (tick * deceleration) < 0:
-            return 0
+        value = value - tick * deceleration
 
-        attribute = attribute - tick * deceleration
+        if value < 0:
+            value = 0
 
         if negative:
-            return -attribute
+            value = -value
 
-        return attribute
+        if attribute == 'x':
+            self._speed.set_x(value)
+        else:
+            self._speed.set_y(value)
 
     def _compute_position(self):
         """
@@ -148,23 +148,24 @@ class Character:
         en fonction de la vitesse actuelle du personnage
         """
 
-        if self._dx == 0 and self._dy == 0:
+        # todo test small values
+        if self._speed.norm() == 0:
             return
 
-        if abs(self._dx) > abs(self._dy):
-            if self._dx > 0:
+        if abs(self._speed.x()) > abs(self._speed.y()):
+            if self._speed.x() > 0:
                 self._charset.set_position(2)
             else:
                 self._charset.set_position(1)
         else:
-            if self._dy > 0:
-                self._charset.set_position(0)
-            else:
+            if self._speed.y() > 0:
                 self._charset.set_position(3)
+            else:
+                self._charset.set_position(0)
 
     def _compute_movement(self, tick):
         # we advance movement only if the player has enough speed
-        if abs(self._dx) + abs(self._dy) < self._max_speed / 2:
+        if abs(self._speed.x()) + abs(self._speed.y()) < self._max_speed / 2:
             self._charset.set_default_movement()
             return
 
@@ -174,9 +175,6 @@ class Character:
             self._ticks_before_switch_movements = 0
 
     def _compute_screen_collision(self, limit: Surface):
-        self._x += self._dx
-        self._y += self._dy
-
         offset_x = limit.get_offset()[0]
         offset_y = limit.get_offset()[1]
 
@@ -194,6 +192,10 @@ class Character:
         return 'x: {}, y: {}, dx: {}, dy: {}'.format(
             round(self._x, 2),
             round(self._y, 2),
-            round(self._dx, 2),
-            round(self._dy, 2)
+            round(self._speed.x(), 2),
+            round(self._speed.y(), 2)
         )
+
+    def _apply_position(self):
+        self._x += self._speed.x()
+        self._y -= self._speed.y()

@@ -13,7 +13,6 @@ class MapFactory:
         self._config = config
 
     def save(self, map: Map):
-        print(os.path.realpath(self._config.get('maps.path', '')))
         file_name = self._config.get('maps.path', '') + os.path.sep + map.name() + '.bin'
         file = None
 

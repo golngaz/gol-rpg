@@ -18,7 +18,6 @@ class Tileset:
         self._height = height
 
     def load(self):
-        print(self._file)
         self._image = pygame.image.load(self._file).convert_alpha()
 
     def sprite(self, x: int, y: int) -> Sprite:
