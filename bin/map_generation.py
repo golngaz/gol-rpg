@@ -1,4 +1,5 @@
 import os
+from random import randint
 
 from src.Config.ConfigParserFacade import ConfigParserFacade
 from src.Game.Layer import Layer
@@ -11,26 +12,27 @@ config = ConfigParserFacade('..' + os.path.sep + 'conf.ini', 'dev', root_directo
 
 
 def get_tileset_2() -> Tileset:
-    file = config.get('tileset.path') + os.path.sep + 'Tileset_48x48_2.png'
+    file = config.get('tileset.path') + os.path.sep + 'Tileset_48x48_9.png'
     return Tileset(file, 48, 48, 480, 480)
 
 
 if __name__ == '__main__':
     map = Map('start-map')
+    map.set_size((20, 15))
 
     tileset = get_tileset_2()
 
-    layer = Layer([
-        SpriteMap((0, 0), (0, 0), tileset),
-        SpriteMap((1, 1), (1, 1), tileset),
-        SpriteMap((2, 2), (2, 2), tileset),
-        SpriteMap((3, 3), (3, 3), tileset),
-        SpriteMap((4, 4), (4, 4), tileset),
-        SpriteMap((5, 5), (5, 5), tileset),
-        SpriteMap((6, 6), (6, 6), tileset),
-        SpriteMap((7, 7), (7, 7), tileset),
-        SpriteMap((8, 8), (8, 8), tileset)
-    ])
+    sprites = []
+    for x in range(map.size()[0]):
+        for y in range(map.size()[1]):
+            sprites.append(SpriteMap(
+                (x, y),
+                (2, 4),
+                # (randint(0, 48), randint(0, 48)),
+                tileset
+            ))
+
+    layer = Layer(sprites)
 
     map.add_layer(layer)
 
