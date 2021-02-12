@@ -1,13 +1,8 @@
-from configparser import ConfigParser
-from Engine import Engine
 from src.Config.ConfigParserFacade import ConfigParserFacade
+from src.Game.Game import Game
 
+config = ConfigParserFacade('conf.ini', 'dev')
 
-config = ConfigParserFacade('./conf.ini', 'dev')
-
-game = Engine(config)
-
+game = Game(config)
 
 game.run()
-
-# game.debug()

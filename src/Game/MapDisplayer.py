@@ -8,12 +8,15 @@ from src.Game.Map import Map
 
 
 class MapDisplayer:
-    def __init__(self, config: ConfigInterface, player: Character):
+    def __init__(self, config: ConfigInterface):
+        self._characters = list()
         self._maps = {}
         self._current_map: Map
         self._sprite_size = config.get('sprite.size')
         self._surface = self._create_surface(8, 6)
-        self._player = player
+
+    def add_characters(self, character: Character):
+        self._characters.append(character)
 
     def map(self, name: str) -> Map:
         if name not in self._maps:
@@ -30,7 +33,7 @@ class MapDisplayer:
 
     def load(self):
         self._current_map\
-            .add_character(self._player)\
+            .set_characters(self._characters)\
             .load()
 
     def tick(self, tick):

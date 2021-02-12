@@ -8,7 +8,7 @@ from src.Game.MapFactory import MapFactory
 from src.Game.SpriteMap import SpriteMap
 from src.Game.Tileset import Tileset
 
-config = ConfigParserFacade('..' + os.path.sep + 'conf.ini', 'dev', root_directory='..')
+config = ConfigParserFacade('conf.ini', 'dev', root_directory='..')
 
 
 def get_tileset_2() -> Tileset:

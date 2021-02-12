@@ -9,9 +9,9 @@ from src.Config.ConfigInterface import ConfigInterface
 
 class ConfigParserFacade(ConfigInterface):
     def __init__(self, file: str, env: str = 'prod', root_directory: str = '.', transform_path_to_real: bool = True, enable_cache: bool = True):
-        self._file = file
+        self._file = root_directory + os.path.sep + file
         self._parser = ConfigParser()
-        self._parser.read(file)
+        self._parser.read(self._file)
         self._env = env
         self._transform_path_to_real = transform_path_to_real
         self._cache_enabled = enable_cache
