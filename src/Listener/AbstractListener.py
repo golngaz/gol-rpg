@@ -1,6 +1,7 @@
 from pygame.event import Event
 from abc import ABC, abstractmethod
 from src import AbstractEngine
+from src import Core
 
 
 class AbstractListener(ABC):
@@ -11,5 +12,5 @@ class AbstractListener(ABC):
     def supports(self, event: Event): ...
 
     @abstractmethod
-    def handle(self, event): ...
+    def handle(self, event: Event, core: Core): ...
 

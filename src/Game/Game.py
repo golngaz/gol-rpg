@@ -15,7 +15,7 @@ class Game(AbstractEngine):
         self._player = Character(Charset(config.get('charset.path') + '/armored-npcs.png', 48, 72, 8, 3, 4, 4))
 
         self._init_dispatcher()
-        self._core.configure_displayer(self)
+        self._core.configure_map_displayer(self)
 
     def run(self):
         self._core.run()

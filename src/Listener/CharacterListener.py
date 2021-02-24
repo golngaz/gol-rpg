@@ -1,5 +1,6 @@
 import pygame
 from pygame.event import Event
+from src.Core import Core
 from src.Listener.AbstractListener import AbstractListener
 
 
@@ -8,7 +9,7 @@ class CharacterListener(AbstractListener):
     def supports(self, event: Event):
         return event.type == pygame.KEYDOWN or event.type == pygame.KEYUP
 
-    def handle(self, event):
+    def handle(self, event: Event, core: Core):
         player = self._engine.player()
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_z:

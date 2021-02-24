@@ -12,7 +12,7 @@ config = ConfigParserFacade('conf.ini', 'dev', root_directory='..')
 
 
 def get_tileset_2() -> Tileset:
-    file = config.get('tileset.path') + os.path.sep + 'Tileset_48x48_9.png'
+    file = config.get('tileset.default.path') + os.path.sep + 'Tileset_48x48_9.png'
     return Tileset(file, 48, 48, 480, 480)
 
 
