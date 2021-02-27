@@ -14,8 +14,11 @@ class Game(AbstractEngine):
         super().__init__(config)
         self._player = Character(Charset(config.get('charset.path') + '/armored-npcs.png', 48, 72, 8, 3, 4, 4))
 
+        self._map_factory = MapFactory(config)
+        self._map_displayer = MapDisplayer(config)
+
         self._init_dispatcher()
-        self._core.configure_map_displayer(self)
+        self.configure_displayer()
 
     def run(self):
         self._core.run()
@@ -25,10 +28,11 @@ class Game(AbstractEngine):
         self._dispatcher.add_listener(DisplayListener(self))
         self._dispatcher.add_listener(QuitListener(self))
 
-    def configure_displayer(self, map_displayer: MapDisplayer, map_factory: MapFactory):
-        map_displayer.add_map(map_factory.map('start-map'))
-        map_displayer.set_current_map('start-map')
-        map_displayer.add_characters(self._player)
+    def configure_displayer(self):
+        self._map_displayer.add_map(self._map_factory.map('start-map'))
+        self._map_displayer.set_current_map('start-map')
+        self._map_displayer.add_characters(self._player)
+        self._core.displayer().add_displayer(self._map_displayer)
 
     def player(self) -> Character:
         return self._player

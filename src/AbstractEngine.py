@@ -10,9 +10,13 @@ from src.Game.Character import Character
 class AbstractEngine(ABC):
 
     def __init__(self, config: ConfigInterface):
+        self._config = config
         self._dispatcher = EventDispatcher()
         self._displayer = Displayer()
         self._core = Core(config, self._dispatcher, self._displayer)
+
+    def config(self) -> ConfigInterface:
+        return self._config
 
     @abstractmethod
     def player(self) -> Character: ...

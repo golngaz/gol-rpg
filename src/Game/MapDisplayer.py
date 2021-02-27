@@ -7,7 +7,7 @@ from src.Game.Map import Map
 
 class MapDisplayer(DisplayerInterface):
     def __init__(self, config: ConfigInterface):
-        self._pull_bottom = True
+        self._pull_bottom = False
         self._pull_top = False
         self._pull_right = False
         self._pull_left = False

@@ -1,5 +1,4 @@
 import pygame
-from pygame.surface import Surface
 from src.Config.ConfigInterface import ConfigInterface
 from src.Displayer import Displayer
 from src.EventDispatcher import EventDispatcher
