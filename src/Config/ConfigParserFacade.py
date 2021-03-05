@@ -9,6 +9,10 @@ from src.Config.ConfigInterface import ConfigInterface
 
 class ConfigParserFacade(ConfigInterface):
     def __init__(self, file: str, env: str = 'prod', root_directory: str = '.', transform_path_to_real: bool = True, enable_cache: bool = True):
+        self._mapping_specials = {
+            'root_path': realpath(root_directory)
+        }
+
         self._file = root_directory + os.path.sep + file
         self._parser = ConfigParser()
         self._parser.read(self._file)
@@ -17,6 +21,9 @@ class ConfigParserFacade(ConfigInterface):
         self._cache_enabled = enable_cache
         self.cache = {}
         self._root_directory = root_directory
+
+    def add_special(self, special_key: str, special_value: str):
+        self._mapping_specials[special_key] = special_value
 
     def get(self, key: str, default=None):
         try:
@@ -27,13 +34,8 @@ class ConfigParserFacade(ConfigInterface):
 
         value = ConfigParserFacade._auto_transform_type(result)
 
-        if self._transform_path_to_real and key.split('.')[-1] == 'path':
-            if self.get(key + '.real'):
-                value = self.get(key + '.real')
-            else:
-                value = realpath(self._root_directory + os.path.sep + value)
-                # save for cache
-                self.set(key + '.real', value)
+        if type(value) is str:
+            return self._replace_specials(value)
 
         return value
 
@@ -72,3 +74,6 @@ class ConfigParserFacade(ConfigInterface):
             pass
 
         return value
+
+    def _replace_specials(self, value: str):
+        return value.format_map(self._mapping_specials)

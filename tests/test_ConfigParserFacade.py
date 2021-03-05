@@ -47,6 +47,17 @@ class ConfigParserFacadeTest(TestCase):
 
         self.assertIsNone(config2.get('machin'))
 
+    def test_path_transform(self):
+        self.assertSame('E:\\gael\\dev\\gol-rpg\\tests/machin', self._config.get('my.path'))
+
+        with self.assertRaises(KeyError) as e:
+            self._config.get('special.path')
+
+        self.assertSame('\'special_custom\'', str(e.exception))
+
+        self._config.add_special('special_custom', 'custom_path')
+        self.assertSame('my/custom_path/is/special', self._config.get('special.path'))
+
 
 if __name__ == '__main__':
     unittest.main()
